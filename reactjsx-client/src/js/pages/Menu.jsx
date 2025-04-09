@@ -31,6 +31,35 @@ function Menu() {
         setRetryCount(prev => prev + 1);
     };
     
+    // Group menu items by category
+    const groupedMenu = menuItems.reduce((acc, item) => {
+        const category = item.category;
+        if (!acc[category]) {
+            acc[category] = [];
+        }
+        acc[category].push(item);
+        return acc;
+    }, {});
+    
+    // Define category order
+    const categoryOrder = ["Starters", "Main Courses", "Desserts", "Beverages"];
+    
+    // Sort categories according to defined order
+    const sortedCategories = Object.keys(groupedMenu).sort((a, b) => {
+        const indexA = categoryOrder.indexOf(a);
+        const indexB = categoryOrder.indexOf(b);
+        
+        // If both categories are in our predefined order, sort by that order
+        if (indexA !== -1 && indexB !== -1) {
+            return indexA - indexB;
+        }
+        // If only one category is in our predefined order, prioritize it
+        if (indexA !== -1) return -1;
+        if (indexB !== -1) return 1;
+        // For categories not in our predefined list, sort alphabetically
+        return a.localeCompare(b);
+    });
+    
     if (loading) return (
         <div className="container text-center my-5">
             <div className="spinner-border" role="status">
@@ -58,23 +87,31 @@ function Menu() {
     
     return (
         <div className="container my-5">
-            <h1 className="mb-4">Our Menu</h1>
+            <h1 className="mb-4 text-center">Our Menu</h1>
+            
             {menuItems.length === 0 ? (
                 <div className="alert alert-info">No menu items available.</div>
             ) : (
-                <div className="row">
-                    {menuItems.map(item => (
-                        <div key={item.id} className="col-md-4 mb-4">
-                            <div className="card h-100">
-                                <div className="card-body">
-                                    <h5 className="card-title">{item.name}</h5>
-                                    <h6 className="card-subtitle mb-2 text-muted">{item.category}</h6>
-                                    <p className="card-text">${item.price.toFixed(2)}</p>
+                sortedCategories.map(category => (
+                    <div key={category} className="mb-5">
+                        <h2 className="menu-category">{category}</h2>
+                        <hr className="mb-4" />
+                        
+                        <div className="row">
+                            {groupedMenu[category].map(item => (
+                                <div key={item.id} className="col-md-4 mb-4">
+                                    <div className="card h-100">
+                                        <div className="card-body">
+                                            <h5 className="card-title">{item.name}</h5>
+                                            <p className="card-text">{item.description}</p>
+                                            <p className="card-text fw-bold">${item.price.toFixed(2)}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </div>
+                ))
             )}
         </div>
     );

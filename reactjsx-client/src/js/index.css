@@ -28,6 +28,25 @@
     margin: 0;
     padding: 0;
   }
+
+  .navbar {
+    font-family: var(--font-secondary);
+  }
+
+  .navbar-brand {
+    font-family: var(--font-primary);
+    font-weight: 700;
+  }
+
+  .nav-link {
+    font-family: var(--font-secondary);
+    color: var(--text-color) !important;
+    transition: color 0.3s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--accent-color) !important;
+  }
   
   body {
     font-family: var(--font-secondary);
