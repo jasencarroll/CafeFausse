@@ -5,24 +5,20 @@ import Menu from './pages/Menu';
 import Reservations from './pages/Reservations';
 import About from './pages/About';
 import Gallery from './pages/Gallery';
-import Header from './components/Header';
-import Footer from './components/Footer';
+// import Header from './components/Header';
+// import Footer from './components/Footer';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Header />
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/reservations" element={<Reservations />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/gallery" element={<Gallery />} />
-        </Routes>
-      </main>
-      <Footer />
-    </BrowserRouter>
+    <main>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/menu" element={<Menu />} />
+        <Route path="/reservations" element={<Reservations />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/gallery" element={<Gallery />} />
+      </Routes>
+    </main>
   );
 }
 
