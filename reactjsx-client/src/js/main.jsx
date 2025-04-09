@@ -1,6 +1,7 @@
+// Import our custom CSS
+import '../scss/styles.scss'
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
 import { BrowserRouter } from "react-router-dom";
 
@@ -12,4 +13,3 @@ root.render(
     </BrowserRouter>
   </React.StrictMode>
 );
-
