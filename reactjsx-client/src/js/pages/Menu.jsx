@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ApiService from '../services/api-service';
 
 function Menu() {
     const [menuItems, setMenuItems] = useState([]);
@@ -9,15 +10,14 @@ function Menu() {
     useEffect(() => {
         const fetchMenu = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:5000/api/menu');
-                if (!response.ok) throw new Error(`Server responded with status: ${response.status}`);
-                const data = await response.json();
+                setLoading(true);
+                const data = await ApiService.getMenu();
                 setMenuItems(data);
-                setLoading(false);
                 setError(null);
             } catch (err) {
                 console.error('Error fetching menu:', err);
                 setError(`${err.message}. Make sure the Flask server is running on port 5000.`);
+            } finally {
                 setLoading(false);
             }
         };
