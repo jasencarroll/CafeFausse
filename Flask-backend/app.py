@@ -1,6 +1,5 @@
-from flask import Flask, render_template, send_from_directory, jsonify
+from flask import Flask, jsonify
 from flask_cors import CORS
-import os
 
 app = Flask(__name__, 
             static_folder='static',
