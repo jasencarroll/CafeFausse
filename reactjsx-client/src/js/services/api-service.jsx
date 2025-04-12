@@ -12,7 +12,10 @@ const api = axios.create({
   }
 });
 
+
+// Expost getMenu as a constant that is async to decrease page load time
 export const getMenu = async () => {
+  // Try to get the response from the menu api using the axios api, otherwise catch errors. 
   try {
     const response = await api.get('/menu');
     return response.data;
@@ -22,8 +25,10 @@ export const getMenu = async () => {
   }
 };
 
+// Make the function callable as a method from ApiService class.
 const ApiService = {
   getMenu
 };
 
+// Export the class itself
 export default ApiService;

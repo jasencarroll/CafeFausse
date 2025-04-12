@@ -12,9 +12,7 @@ The backend is hosted via Flask. It uses packages such as `Flask-CORS` and `WTFo
 The frontend is hosted via a React app, and the React Router DOM, using Vite. The front end is further
 bootstrapped with `Bootstrap`, `React Bootstrap` for styling and `Axious` for a front-end RESTful API.
 
-## Development
-
-Development flow:
+## Running Development
 
 - Run your Flask app with `python app.py` to serve the built React app.
 - Run `npm start` in reactjsx-client for development with hot reloading.

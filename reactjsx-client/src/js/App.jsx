@@ -13,7 +13,9 @@ import Gallery from './pages/Gallery';
 export default function App() {
     return (
         <main>
+            {/* Get the NaviBar element and display it */}
             <NaviBar />
+            {/* App Router: Connects different paths (routes) to different pages (views) */}
             <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="menu" element={<Menu />} />
