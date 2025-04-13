@@ -13,7 +13,8 @@ export default function Reservations() {
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prevState => ({
-            [name]: type === 'checkbox' ? (checked ? 1 : 0) : value
+            ...prevState,
+            [name]: type === 'checkbox' ? checked : value
         }));
     };
 
@@ -30,9 +31,10 @@ export default function Reservations() {
                     email_address: formData.email,
                     phone_number: formData.phoneNumber,
                     number_of_guests: formData.guests,
-                    time_slot: formData.timeSlot,  // optional if using later
+                    timeSlot: formData.timeSlot,
                     newsletter_signup: formData.newsletter_signup,
                 }),
+
             });
             const result = await response.json();
             console.log('Reservation submitted:', result);
@@ -99,6 +101,7 @@ export default function Reservations() {
                                     <label htmlFor="guests" className="form-label">Number of Guests</label>
                                     <input 
                                         type="number" 
+                                        autoComplete="name"
                                         className="form-control" 
                                         id="guests"
                                         name="guests"
@@ -129,6 +132,7 @@ export default function Reservations() {
                                         type="email" 
                                         className="form-control" 
                                         id="email"
+                                        autoComplete="email"
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
@@ -141,6 +145,7 @@ export default function Reservations() {
                                     <input 
                                         type="tel" 
                                         className="form-control" 
+                                        autoComplete="tel"
                                         id="phoneNumber"
                                         name="phoneNumber"
                                         value={formData.phoneNumber}
@@ -149,18 +154,19 @@ export default function Reservations() {
                                     />
                                 </div>
 
-                                <div className="mb-3"></div>
-                                    <input 
-                                        type="checkbox" 
-                                        className="form-check-input" 
-                                        id="newsletter_signup"
-                                        name="newsletter_signup"
-                                        checked={formData.newsletter_signup}
-                                        onChange={handleChange}
-                                    />
-                                    <label className="form-check-label" htmlFor="newsletter_signup">
-                                        Sign up for the newsletter
-                                    </label>
+                                <div className="mb-3 form-check">
+  <input 
+    type="checkbox" 
+    className="form-check-input" 
+    id="newsletter_signup"
+    name="newsletter_signup"
+    checked={formData.newsletter_signup}
+    onChange={handleChange}
+  />
+  <label className="form-check-label" htmlFor="newsletter_signup">
+    Sign up for the newsletter
+  </label>
+</div>
 
 
                                 <button type="submit" className="btn btn-primary">Submit Reservation</button>
