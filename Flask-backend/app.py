@@ -12,6 +12,7 @@ db = SQLAlchemy(app)
 class Customers(db.Model):
     customer_id = db.Column(db.Integer, primary_key=True)
     customer_name = db.Column(db.String(80))
+    number_of_guests = db.Column(db.Integer)
     email_address = db.Column(db.String(80))
     phone_number = db.Column(db.String(80))
     newsletter_signup = db.Column(db.Boolean)
