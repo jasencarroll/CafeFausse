@@ -6,22 +6,41 @@ export default function Reservations() {
         guests: 1,
         customerName: '',
         email: '',
-        phoneNumber: ''
+        phoneNumber: '',
+        newsletter_signup: false
     });
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
         setFormData(prevState => ({
-            ...prevState,
-            [name]: value
+            [name]: type === 'checkbox' ? (checked ? 1 : 0) : value
         }));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log('Reservation submitted:', formData);
-        // Here you would typically send the data to your backend
-        // and handle the response
+        try {
+            const response = await fetch('http://localhost:5000/api/reservations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    customer_name: formData.customerName,
+                    email_address: formData.email,
+                    phone_number: formData.phoneNumber,
+                    number_of_guests: formData.guests,
+                    time_slot: formData.timeSlot,  // optional if using later
+                    newsletter_signup: formData.newsletter_signup,
+                }),
+            });
+            const result = await response.json();
+            console.log('Reservation submitted:', result);
+            alert('Reservation submitted!');
+        } catch (error) {
+            console.error('Error submitting reservation:', error);
+            alert('Something went wrong!');
+        }
     };
 
     // Generate time slots for the next 7 days
@@ -129,7 +148,21 @@ export default function Reservations() {
                                         required
                                     />
                                 </div>
-                                
+
+                                <div className="mb-3"></div>
+                                    <input 
+                                        type="checkbox" 
+                                        className="form-check-input" 
+                                        id="newsletter_signup"
+                                        name="newsletter_signup"
+                                        checked={formData.newsletter_signup}
+                                        onChange={handleChange}
+                                    />
+                                    <label className="form-check-label" htmlFor="newsletter_signup">
+                                        Sign up for the newsletter
+                                    </label>
+                                </div>
+
                                 <button type="submit" className="btn btn-primary">Submit Reservation</button>
                             </form>
                         </div>
