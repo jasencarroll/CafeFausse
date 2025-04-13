@@ -2,29 +2,57 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
-app = Flask(__name__, 
-            static_folder='static',
-            template_folder='templates')
+app = Flask(__name__, static_folder='static', template_folder='templates')
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://cafefausse:aedj12sda@localhost/cafefausse'
 db = SQLAlchemy(app)
+
+TOTAL_TABLES = 30
+
+@app.route('/api/reservations', methods=['POST'])
+def create_reservation():
+    data = request.get_json()
+    time_slot = data.get('timeSlot')
+    existing_reservations = Reservations.query.filter_by(time_slot=time_slot).count()
+
+    if existing_reservations >= TOTAL_TABLES:
+        return jsonify({'error': 'No tables available at this time'}), 400
+
+    # Step 2: Create the customer
+    customer = Customers(
+        customer_name=data['customer_name'],
+        email_address=data['email_address'],
+        phone_number=data['phone_number'],
+        newsletter_signup=data['newsletter_signup']
+    )
+    db.session.add(customer)
+    db.session.flush()
+
+    reservation = Reservations(
+        customer_id=customer.customer_id,
+        time_slot=time_slot,
+        number_of_guests=data['number_of_guests']
+    )
+    db.session.add(reservation)
+    db.session.commit()
+
+    return jsonify({'message': 'Reservation confirmed'}), 201
 
 class Customers(db.Model):
     customer_id = db.Column(db.Integer, primary_key=True)
     customer_name = db.Column(db.String(80))
     number_of_guests = db.Column(db.Integer)
-    email_address = db.Column(db.String(80))
+    email_address = db.Column(db.String(100))
     phone_number = db.Column(db.String(80))
     newsletter_signup = db.Column(db.Boolean)
 
 class Reservations(db.Model):
     reservation_id = db.Column(db.Integer, primary_key=True)
-    customer_id = db.Column(db.Integer)
-    time_slot = db.Column(db.Time)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.customer_id'))
+    time_slot = db.Column(db.String(80))
+    number_of_guests = db.Column(db.Integer)
     table_number = db.Column(db.Integer)
-
-# Enable CORS for all routes with explicit origins
-CORS(app, resources={r"/api/*": {"origins": ["http://localhost:8080", "http://127.0.0.1:8080"]}})
 
 @app.route("/api/health", methods=['GET'])
 def health_check():
@@ -49,6 +77,6 @@ def menu():
     return jsonify(menu_items)
 
 if __name__ == "__main__":
-    app.run(debug=True)
     with app.app_context():
         db.create_all()
+    app.run(debug=True)
