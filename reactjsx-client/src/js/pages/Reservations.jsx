@@ -161,7 +161,7 @@ export default function Reservations() {
                                     <label className="form-check-label" htmlFor="newsletter_signup">
                                         Sign up for the newsletter
                                     </label>
-                                </div>
+
 
                                 <button type="submit" className="btn btn-primary">Submit Reservation</button>
                             </form>
