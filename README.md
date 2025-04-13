@@ -8,10 +8,10 @@ The backend of our web app is hosted via Flask, a lightweight web framework writ
 
 Flask-SQLAlchemy is a tool that helps the Flask use a database such as the one used by our web app, PostgreSQL. To set up a PostgreSQL database on your machine, run the following commands in your terminal. For demonstration purposes, the username for the user that accesses the PostgreSQL has been set to `cafefausse` and the password for that user has been set to `aedj12sda`.
 
-`pip install flask-sqlalchemy psycopg2-binary`
-`createdb cafefausse`
-`psql -U postgres`
-`CREATE USER cafefausse WITH PASSWORD 'aedj12sda';`
+`pip install flask-sqlalchemy psycopg2-binary`  
+`createdb cafefausse`  
+`psql -U postgres`  
+`CREATE USER cafefausse WITH PASSWORD 'aedj12sda';`  
 `GRANT ALL PRIVILEGES ON DATABASE cafefausse TO myuser;`
 
 To test that the user has read and write privileges for the new database, run the following in your terminal, then enter the password when prompted:
