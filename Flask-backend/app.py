@@ -1,9 +1,26 @@
-from flask import Flask, jsonify
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 app = Flask(__name__, 
             static_folder='static',
             template_folder='templates')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://cafefausse:aedj12sda@localhost/cafefausse'
+db = SQLAlchemy(app)
+
+class Customers(db.Model):
+    customer_id = db.Column(db.Integer, primary_key=True)
+    customer_name = db.Column(db.String(80))
+    email_address = db.Column(db.String(80))
+    phone_number = db.Column(db.String(80))
+    newsletter_signup = db.Column(db.Boolean)
+
+class Reservations(db.Model):
+    reservation_id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer)
+    time_slot = db.Column(db.Time)
+    table_number = db.Column(db.Integer)
 
 # Enable CORS for all routes with explicit origins
 CORS(app, resources={r"/api/*": {"origins": ["http://localhost:8080", "http://127.0.0.1:8080"]}})
@@ -32,3 +49,5 @@ def menu():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    with app.app_context():
+        db.create_all()
