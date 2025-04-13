@@ -25,9 +25,21 @@ export const getMenu = async () => {
   }
 };
 
-// Make the function callable as a method from ApiService class.
+// Submit reservation
+export const submitReservation = async (reservationData) => {
+  try {
+    const response = await api.post('/reservations', reservationData);
+    return response.data;
+  } catch (error) {
+    console.error("API error submitting reservation:", error.message);
+    throw new Error(error.response?.data?.message || error.message);
+  }
+};
+
+// Make the functions callable as methods from ApiService class
 const ApiService = {
-  getMenu
+  getMenu,
+  submitReservation
 };
 
 // Export the class itself

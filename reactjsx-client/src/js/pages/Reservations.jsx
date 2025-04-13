@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ApiService from '../services/api-service';
 
 export default function Reservations() {
     const [formData, setFormData] = useState({
@@ -21,22 +22,14 @@ export default function Reservations() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/api/reservations', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    customer_name: formData.customerName,
-                    email_address: formData.email,
-                    phone_number: formData.phoneNumber,
-                    number_of_guests: formData.guests,
-                    time_slot: formData.timeSlot,
-                    newsletter_signup: formData.newsletter_signup,
-                }),
-
+            const result = await ApiService.submitReservation({
+                customer_name: formData.customerName,
+                email_address: formData.email,
+                phone_number: formData.phoneNumber,
+                number_of_guests: formData.guests,
+                time_slot: formData.timeSlot,
+                newsletter_signup: formData.newsletter_signup,
             });
-            const result = await response.json();
             console.log('Reservation submitted:', result);
             alert('Reservation submitted!');
         } catch (error) {
