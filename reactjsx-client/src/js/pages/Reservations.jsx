@@ -31,7 +31,7 @@ export default function Reservations() {
                     email_address: formData.email,
                     phone_number: formData.phoneNumber,
                     number_of_guests: formData.guests,
-                    timeSlot: formData.timeSlot,
+                    time_slot: formData.timeSlot,
                     newsletter_signup: formData.newsletter_signup,
                 }),
 
