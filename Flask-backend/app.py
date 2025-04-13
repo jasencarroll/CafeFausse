@@ -6,7 +6,7 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 # Enable CORS for all routes with explicit origins
 CORS(app, resources={r"/api/*": {"origins": ["http://localhost:8080", "http://127.0.0.1:8080"]}})
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:admin@localhost/cafe_fausse'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://cafefausse:aedj12sda@localhost/cafefausse'
 db = SQLAlchemy(app)
 
 TOTAL_TABLES = 30
