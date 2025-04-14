@@ -18,6 +18,10 @@ export default function Reservations() {
         newsletter_signup: false // If the newsletter signup box is not checked off, the value False is returned
                                  // If the newsletter signup box is checked off by the user, the value True is returned
     });
+    
+    // Add states to manage success and error messages
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
 
     // Handle form updates in React for all input types 
     const handleChange = (e) => {
@@ -30,11 +34,20 @@ export default function Reservations() {
             ...prevState, // Copies the previous state using spread syntax
             [name]: type === 'checkbox' ? checked : value // Dynamically set the property matching the name to 'checked' if it's a checkbox, 'value' otherwise.
         }));
+        
+        // Clear any existing messages when user starts typing again
+        if (successMessage) setSuccessMessage('');
+        if (errorMessage) setErrorMessage('');
     };
 
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault(); // Prevent the web browser's default form submission behavior which would reload the page
+        
+        // Clear any existing messages
+        setSuccessMessage('');
+        setErrorMessage('');
+        
         try {
             const result = await ApiService.submitReservation({ // Calls a method from the custom ApiService module to send a POST request to the Flask API (api/reservations)
                                                                 // Sends the data collected in formData, mapping React form state to the expected keys on the backend
@@ -45,11 +58,25 @@ export default function Reservations() {
                 time_slot: formData.timeSlot, // Example submission: 2025-04-14T11:00
                 newsletter_signup: formData.newsletter_signup
             });
-            console.log('Reservation submitted:', result); // Logs the result returned by the backend (such as a confirmation message or data) for debugging or inspection
-            alert('Reservation submitted!'); // Shows a success popup in the web browser to inform the user that their reservation was submitted
+            
+            console.log('Reservation submitted:', result); // Logs the result returned by the backend
+            
+            // Display success message
+            setSuccessMessage(`Reservation confirmed! Your table number is ${result.table_number}.`);
+            
+            // Reset form to initial values
+            setFormData({
+                customerName: '',
+                email: '',
+                phoneNumber: '',
+                guests: 1,
+                timeSlot: '',
+                newsletter_signup: false
+            });
+            
         } catch (error) {
             console.error('Error submitting reservation:', error);
-            alert('Something went wrong!');
+            setErrorMessage('Something went wrong with your reservation. Please try again.');
         }
     };
 
@@ -81,6 +108,20 @@ export default function Reservations() {
             
             <div className="row mt-4">
                 <div className="col-md-8 col-lg-6">
+                    {/* Success message */}
+                    {successMessage && (
+                        <div className="alert alert-success mb-4" role="alert">
+                            {successMessage}
+                        </div>
+                    )}
+                    
+                    {/* Error message */}
+                    {errorMessage && (
+                        <div className="alert alert-danger mb-4" role="alert">
+                            {errorMessage}
+                        </div>
+                    )}
+                
                     <div className="card">
                         <div className="card-body">
                             <h2 className="card-title mb-4">Make a Reservation</h2>
@@ -174,7 +215,7 @@ export default function Reservations() {
                                     <label className="form-check-label" htmlFor="newsletter_signup">
                                         Sign up for the newsletter
                                     </label>
-                                    </div>
+                                </div>
 
                                 <button type="submit" className="btn btn-primary">Submit Reservation</button>
                             </form>

@@ -11,6 +11,26 @@ db = SQLAlchemy(app)
 
 TOTAL_TABLES = 30
 
+# Define models first, before route handlers
+class Customers(db.Model):
+    customer_id = db.Column(db.Integer, primary_key=True)
+    customer_name = db.Column(db.String(80))
+    email_address = db.Column(db.String(100))
+    phone_number = db.Column(db.String(80))
+    newsletter_signup = db.Column(db.Boolean)
+
+class Reservations(db.Model):
+    reservation_id = db.Column(db.Integer, primary_key=True)
+    customer_id = db.Column(db.Integer, db.ForeignKey('customers.customer_id'))
+    time_slot = db.Column(db.DateTime)
+    number_of_guests = db.Column(db.Integer)
+    table_number = db.Column(db.Integer)
+
+# Initialize the database first
+with app.app_context():
+    db.create_all()
+
+# Then define all your routes
 @app.route("/")
 def home():
     return "Flask is operational."
@@ -56,7 +76,8 @@ def create_reservation():
     reservation = Reservations(
         customer_id=customer.customer_id,
         time_slot=time_slot,
-        number_of_guests=data['number_of_guests']
+        number_of_guests=data['number_of_guests'],
+        table_number=assigned_table
     )
     db.session.add(reservation)
     db.session.commit() # The records for customer and reservation are officially saved into the PostgreSQL database
@@ -64,29 +85,13 @@ def create_reservation():
     return jsonify({'message': 'Reservation confirmed','table_number': assigned_table}), 201
     # HTTP code 201 indicates that the request has been fulfilled and has resulted in the creation of a new resource.
 
-class Customers(db.Model):
-    customer_id = db.Column(db.Integer, primary_key=True)
-    customer_name = db.Column(db.String(80))
-    email_address = db.Column(db.String(100))
-    phone_number = db.Column(db.String(80))
-    newsletter_signup = db.Column(db.Boolean)
-
-class Reservations(db.Model):
-    reservation_id = db.Column(db.Integer, primary_key=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey('Customers.customer_id'))
-    time_slot = db.Column(db.DateTime)
-    number_of_guests = db.Column(db.Integer)
-    table_number = db.Column(db.Integer)
-    # For a given customer, the number of guests could vary by reservation, so number_of_guests is
-    # included in the Reservations table, not in the Customers table
-
 @app.route("/api/health", methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy"})
 
 @app.route("/api/menu", methods=['GET'])
 def menu():
-    # Example data - you would typically fetch this from a database
+    # Menu data left as a python list instead of SQL db for easy updating
     menu_items = [
         {"id": 1, "name": "Bruschetta", "price": 8.50, "category": "Starters", "description": "Fresh tomatoes, basil, olive oil, and toasted baguette slices"},
         {"id": 2, "name": "Caesar Salad", "price": 9.00, "category": "Starters", "description": "Crisp romaine with homemade Caesar dressing"},
@@ -103,6 +108,4 @@ def menu():
     return jsonify(menu_items)
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all() # Create the database tables 'Customers' and 'Reservations'
     app.run(debug=True) # Ensures that the server starts and reloads itself when you save changes during development
