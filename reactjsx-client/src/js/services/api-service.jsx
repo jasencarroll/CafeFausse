@@ -1,8 +1,14 @@
+// api-service.jsx is a helper module responsible for abstracting and organizing all
+// interactions with a backend API (such as a Flask or RESTful service).
+
 import axios from "axios";
 
+// Defines constant string called API_BASE that stores the base URL of the
+// backend API (i.e., the Flask webapp server that is running locally)
 const API_BASE = "http://127.0.0.1:5000/api";
 
-// Create an axios instance with default configuration
+// Create an Axios instance for making HTTP requests (like GET, POST, etc.)
+// with a consistent URL, headers, timeout, etc.
 const api = axios.create({
   baseURL: API_BASE,
   timeout: 10000,
@@ -12,12 +18,10 @@ const api = axios.create({
   }
 });
 
-
-// Expost getMenu as a constant that is async to decrease page load time
+// Export getMenu as a constant that is asynchronous to decrease page load time
 export const getMenu = async () => {
-  // Try to get the response from the menu api using the axios api, otherwise catch errors. 
   try {
-    const response = await api.get('/menu');
+    const response = await api.get('/menu'); // Pause execution until the API responds
     return response.data;
   } catch (error) {
     console.error("API error fetching menu:", error.message);
@@ -25,10 +29,10 @@ export const getMenu = async () => {
   }
 };
 
-// Submit reservation
-export const submitReservation = async (reservationData) => {
+// Export submitReservation to send reservation form data to Flask
+export const submitReservation = async (formData) => {
   try {
-    const response = await api.post('/reservations', reservationData);
+    const response = await api.post('/reservations', formData); // POST to Flask route
     return response.data;
   } catch (error) {
     console.error("API error submitting reservation:", error.message);
@@ -36,7 +40,7 @@ export const submitReservation = async (reservationData) => {
   }
 };
 
-// Make the functions callable as methods from ApiService class
+// Make the function callable as a method from ApiService class.
 const ApiService = {
   getMenu,
   submitReservation
