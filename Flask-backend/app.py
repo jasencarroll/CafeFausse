@@ -1,3 +1,5 @@
+# pip install -r requirements.txt
+
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -25,6 +27,11 @@ class Reservations(db.Model):
     time_slot = db.Column(db.DateTime)
     number_of_guests = db.Column(db.Integer)
     table_number = db.Column(db.Integer)
+
+# This database will store a list of email addresses of customers who have signed up for the newsletter
+class Signup_List(db.Model):
+    signup_email_id = db.Column(db.Integer, primary_key=True)
+    email_address = db.Column(db.String(100))
 
 # Initialize the database first
 with app.app_context():
@@ -72,6 +79,14 @@ def create_reservation():
                            # customer_id for the reservation. Ensures the auto-generated customer.customer_id (primary key) is
                            # available before you create the reservation record that references it.
 
+    # Step 3.5: Check if the customer already has a reservation at the same time
+    existing_reservation = Reservations.query.filter_by(customer_id=customer.customer_id, time_slot=time_slot).first()
+    if existing_reservation:
+        return jsonify({
+            'status': 'error',
+            'message': 'You already have a reservation at this time.'
+        }), 200
+
     # Step 4: Create a reservation for that customer
     reservation = Reservations(
         customer_id=customer.customer_id,
@@ -88,6 +103,30 @@ def create_reservation():
 @app.route("/api/health", methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy"})
+
+# This route handles the newsletter signup
+@app.route('/api/newsletter-signup', methods=['POST'])
+def newsletter_signup():
+    data = request.get_json() # Parses the incoming JSON data from the HTTP request body and returns it as a Python dictionary
+    email = data.get('email') # Extracts the email address from the data dictionary
+    
+    # Check if email already exists in the PostgreSQL table
+    existing_signup = Signup_List.query.filter_by(email_address=email).first()
+    if existing_signup:
+        return jsonify({
+            'status': 'error',
+            'message': 'This email is already subscribed to the newsletter.'
+        }), 200
+
+    # Create new signup
+    new_signup = Signup_List(email_address=email)
+    db.session.add(new_signup)
+    db.session.commit()
+
+    return jsonify({
+        'status': 'success',
+        'message': 'Successfully subscribed to newsletter.'
+    }), 201
 
 @app.route("/api/menu", methods=['GET'])
 def menu():
