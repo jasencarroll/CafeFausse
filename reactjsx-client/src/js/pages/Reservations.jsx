@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import ApiService from '../services/api-service';
 // This line imports the module api-service.jsx from the services directory
@@ -22,6 +22,20 @@ export default function Reservations() {
     // Add states to manage success and error messages
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
+    const [availableTableCounts, setAvailableTableCounts] = useState({});
+
+    useEffect(() => {
+        const fetchAvailability = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/api/reservation-counts');
+                const data = await response.json();
+                setAvailableTableCounts(data);
+            } catch (error) {
+                console.error("Failed to fetch reservation counts", error);
+            }
+        };
+        fetchAvailability();
+    }, []);
 
     // Handle form updates in React for all input types 
     const handleChange = (e) => {
@@ -93,8 +107,13 @@ export default function Reservations() {
             for (let hour = 11; hour <= 21; hour++) {
                 const timeString = `${hour > 12 ? hour - 12 : hour}:00 ${hour >= 12 ? 'PM' : 'AM'}`;
                 const dateString = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                
                 const value = `${date.toISOString().split('T')[0]}T${hour < 10 ? '0' + hour : hour}:00`;
-                slots.push({ label: `${dateString}, ${timeString}`, value });
+                const isoDate = `${date.toISOString().split('T')[0]}T${hour < 10 ? '0' + hour : hour}:00`;
+                const reserved = availableTableCounts[isoDate] || 0;
+                const label = `${dateString}, ${timeString} [${30 - reserved}/30 Tables Available]`;
+
+                slots.push({ label, value: isoDate });
             }
         }
         return slots;
