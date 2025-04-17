@@ -40,10 +40,22 @@ export const submitReservation = async (formData) => {
   }
 };
 
+// Export submitNewsletter to send email to Flask
+export const submitNewsletter = async (email) => {
+  try {
+    const response = await api.post('/newsletter-signup', { email }); // Use the Axios library to make a POST request, with the request body in JSON equivalent to 'email: example@email.com'.
+    return response.data;
+  } catch (error) {
+    console.error("API error submitting newsletter signup:", error.message);
+    throw new Error(error.response?.data?.message || error.message);
+  }
+};
+
 // Make the function callable as a method from ApiService class.
 const ApiService = {
   getMenu,
-  submitReservation
+  submitReservation,
+  submitNewsletter  // Add the new function to ApiService
 };
 
 // Export the class itself
