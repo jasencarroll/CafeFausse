@@ -79,13 +79,21 @@ def create_reservation():
                            # customer_id for the reservation. Ensures the auto-generated customer.customer_id (primary key) is
                            # available before you create the reservation record that references it.
 
-    # Step 3.5: Check if the customer already has a reservation at the same time
+    # Check if the customer already has a reservation at the same time
     existing_reservation = Reservations.query.filter_by(customer_id=customer.customer_id, time_slot=time_slot).first()
     if existing_reservation:
         return jsonify({
             'status': 'error',
             'message': 'You already have a reservation at this time.'
         }), 200
+
+    # If the customer checks off that they would like to subscribe to the newsletter, then add their email address into
+    # the Signup_List table if it does not already exist
+    if customer.newsletter_signup:
+        existing_signup = Signup_List.query.filter_by(email_address=customer.email_address).first()
+        if not existing_signup:
+            new_signup = Signup_List(email_address=customer.email_address)
+            db.session.add(new_signup)
 
     # Step 4: Create a reservation for that customer
     reservation = Reservations(
