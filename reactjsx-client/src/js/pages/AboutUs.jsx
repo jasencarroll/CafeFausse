@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ApiService from '../services/api-service';
 
 export default function AboutUs() {
     const [email, setEmail] = useState('');
@@ -21,19 +22,29 @@ export default function AboutUs() {
         }
     };
     
-    const handleSubmit = (e) => {
+    // (e) is short for 'event', the argument automatically passed to the function when triggered by a
+    // form submission (such as clicking the 'Subscribe' button).
+    const handleNewsletterSignup = async (e) => {
         e.preventDefault();
         
+        // Validate the email address entered before adding it into the database
         if (!email || !isValidEmail) {
             setIsValidEmail(false);
             return;
         }
-        
-        // Here you would typically send the email to your backend
-        console.log('Email submitted:', email);
-        setIsSubmitted(true);
-        setEmail('');
-    };
+
+        try {
+            const data = await ApiService.submitNewsletter(email); // Call the submitNewsletter function defined in api-service.jsx to
+                                                                   // send the email address to the backend
+            alert(data.message);  // "Successfully subscribed to newsletter"
+            setIsSubmitted(true);
+            setEmail('');
+          } catch (error) { // If the sign-up is not successful, the user will not see a crash or broken form, they will see a friendly alert
+            console.error("Newsletter signup error:", error);
+            const message = error.response?.data?.message || 'An error occurred. Please try again later.';
+            alert(message)
+          }
+        };
 
     return (
         <div className="container py-4 px-3 mx-auto">
@@ -56,11 +67,12 @@ export default function AboutUs() {
                             Thank you for subscribing to our newsletter!
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="row g-3">
+                        <form onSubmit={handleNewsletterSignup} className="row g-3">
                             <div className="col-md-8">
                                 <label htmlFor="emailSubscribe" className="visually-hidden">Email</label>
                                 <input 
-                                    type="email" 
+                                    type="email"
+                                    name="email"
                                     className={`form-control ${!isValidEmail ? 'is-invalid' : ''}`}
                                     id="emailSubscribe" 
                                     placeholder="Your Email Address"
