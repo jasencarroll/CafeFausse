@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import homeImage from '../../../public/images/home-cafe-fausse.webp'
 
 export default function Index() {
@@ -69,7 +70,7 @@ export default function Index() {
             {renderGallerySection('', galleryImages.home)}
             <p><strong>Address:</strong> 1234 Culinary Ave, Suite 100, Washington, DC 20002</p>
             <p><strong>Phone Number:</strong> (202) 555-4567</p>
-            <button className="btn btn-primary mb-4">Book a Reservation</button>
+            <Link to="/reservations" className="btn btn-primary mb-4">Book a Reservation</Link>
             
             {/* Lightbox Modal */}
             {lightbox.isOpen && lightbox.currentImage && (
