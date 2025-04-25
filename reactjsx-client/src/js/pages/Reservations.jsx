@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-
 import ApiService from '../services/api-service';
-// This line imports the module api-service.jsx from the services directory
-// and assigns its default export to the variable ApiService. The file
-// api-service.jsx defines one or more functions for interacting with the
-// Flask backend API, such as POST or GET requests.
+
+// Define the TOTAL_TABLES constant to match the backend value
+const TOTAL_TABLES = 30;
 
 // Define the React component for Reservations in such a way that other files
 // can import and use this component without needing to know its internal name
@@ -119,12 +117,23 @@ export default function Reservations() {
                 const timeString = `${hour > 12 ? hour - 12 : hour}:00 ${hour >= 12 ? 'PM' : 'AM'}`;
                 const dateString = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                 
-                const value = `${date.toISOString().split('T')[0]}T${hour < 10 ? '0' + hour : hour}:00`;
+                // Create the ISO date string for the time slot
                 const isoDate = `${date.toISOString().split('T')[0]}T${hour < 10 ? '0' + hour : hour}:00`;
-                const reserved = availableTableCounts[isoDate] || 0;
-                const label = `${dateString}, ${timeString} [${30 - reserved}/30 Tables Available]`;
-
-                slots.push({ label, value: isoDate });
+                
+                // Format the date for lookup in availableTableCounts
+                const lookupFormat = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${hour.toString().padStart(2, '0')}:00:00`;
+                
+                // Get the available table count for this time slot
+                const tablesAvailable = availableTableCounts[lookupFormat] !== undefined 
+                    ? availableTableCounts[lookupFormat] 
+                    : TOTAL_TABLES;
+                
+                const label = `${dateString}, ${timeString} [${tablesAvailable}/30 Tables Available]`;
+                
+                slots.push({ 
+                    label, 
+                    value: isoDate 
+                });
             }
         }
         return slots;

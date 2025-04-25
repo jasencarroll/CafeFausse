@@ -162,13 +162,18 @@ def reservation_counts():
         
         # Initialize all hours with full availability
         for hour in hours_today:
-            response[hour.strftime('%Y-%m-%d %H:%M:%S')] = TOTAL_TABLES
+            hour_str = hour.strftime('%Y-%m-%d %H:%M:%S')
+            response[hour_str] = TOTAL_TABLES
             
         # Update with actual reservation counts
         for hour, count in counts:
             if hour:  # Check if hour is not None
                 hour_str = hour.strftime('%Y-%m-%d %H:%M:%S')
-                response[hour_str] = TOTAL_TABLES - count
+                if hour_str in response:
+                    response[hour_str] = TOTAL_TABLES - count
+                    
+        # Debug print for verification
+        print("Reservation counts:", response)
                 
         return jsonify(response)
         
