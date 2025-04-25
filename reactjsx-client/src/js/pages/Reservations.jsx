@@ -62,21 +62,32 @@ export default function Reservations() {
         setSuccessMessage('');
         setErrorMessage('');
         
+        // Validate time slot is selected
+        if (!formData.timeSlot) {
+            setErrorMessage('Please select a time slot');
+            return;
+        }
+        
         try {
-            const result = await ApiService.submitReservation({ // Calls a method from the custom ApiService module to send a POST request to the Flask API (api/reservations)
-                                                                // Sends the data collected in formData, mapping React form state to the expected keys on the backend
-                customer_name: formData.customerName, // Example: John Doe
-                email_address: formData.email, // Example: john.doe@email.com
-                phone_number: formData.phoneNumber, // Example: 123-456-7890
-                number_of_guests: formData.guests, // Example: 2
-                time_slot: formData.timeSlot, // Example submission: 2025-04-14T11:00
+            // Format the time_slot to ensure it's in the correct format
+            // The formData.timeSlot should already be in ISO format like: 2025-04-26T13:00
+            const reservationData = {
+                customer_name: formData.customerName,
+                email_address: formData.email,
+                phone_number: formData.phoneNumber,
+                number_of_guests: parseInt(formData.guests, 10), // Ensure it's an integer
+                time_slot: formData.timeSlot,
                 newsletter_signup: formData.newsletter_signup
-            });
+            };
+            
+            console.log('Sending reservation data:', reservationData); // Debug log
+            
+            const result = await ApiService.submitReservation(reservationData);
             
             console.log('Reservation submitted:', result); // Logs the result returned by the backend
             
             // Display success message
-            setSuccessMessage(`Reservation confirmed! Your table number is ${result.table_number}.`);
+            setSuccessMessage(`Reservation confirmed! Your table number is ${result.table_number}, and your time slot is ${result.time_slot}`);
             
             // Reset form to initial values
             setFormData({
@@ -90,7 +101,7 @@ export default function Reservations() {
             
         } catch (error) {
             console.error('Error submitting reservation:', error);
-            setErrorMessage('Something went wrong with your reservation. Please try again.');
+            setErrorMessage(error.message || 'Something went wrong with your reservation. Please try again.');
         }
     };
 

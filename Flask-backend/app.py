@@ -47,14 +47,35 @@ def home():
 
 @app.route('/api/reservations', methods=['POST'])
 def create_reservation():
-    data = request.get_json() # Save the JSON data posted from reservation.jsx into the Python dictionary 'data'
-    time_slot = data.get('timeSlot') # In the Python dictionary 'data', for the key 'timeSlot', get the value (a string) and assign it to the variable 'time_slot'
-
+    data = request.get_json()
+    print("Received reservation data:", data)  # Debug print
+    time_slot = data.get('time_slot')
+    print("Time slot value:", time_slot)  # Debug print
+    
+    # Convert the time_slot string to a datetime object
+    if time_slot:
+        try:
+            # Convert ISO format string to datetime object
+            time_slot = datetime.fromisoformat(time_slot.replace('Z', '+00:00'))
+            print("Converted time slot:", time_slot)  # Debug print
+        except ValueError as e:
+            print(f"Error parsing time_slot: {e}")
+            return jsonify({
+                'status': 'error',
+                'message': 'Invalid time format. Please select a valid time slot.'
+            }), 400
+    else:
+        return jsonify({
+            'status': 'error',
+            'message': 'Time slot is required'
+        }), 400
+    
     # Step 1: Check table availability
-    reserved_tables = db.session.query(Reservations.table_number).filter_by(time_slot=time_slot).all() # Get all of the table numbers that are already reserved for the given time slot
-    reserved_table_numbers = {t[0] for t in reserved_tables if t[0] is not None} # Convert the list of tuples in reserved_tables into a set of table numbers
-    all_table_numbers = set(range(1, TOTAL_TABLES + 1)) # Create a set of all table numbers from 1 to TOTAL_TABLES (30)
-    available_tables = list(all_table_numbers - reserved_table_numbers) # Get the list of available table numbers by subtracting the reserved table numbers from the total table numbers
+    time_slot_str = time_slot.strftime('%Y-%m-%dT%H:%M:%S')
+    reserved_tables = db.session.query(Reservations.table_number).filter_by(time_slot=time_slot_str).all()
+    reserved_table_numbers = {t[0] for t in reserved_tables if t[0] is not None}
+    all_table_numbers = set(range(1, TOTAL_TABLES + 1))
+    available_tables = list(all_table_numbers - reserved_table_numbers)
     if not available_tables:
         return jsonify({
             'status': 'error',
@@ -83,7 +104,7 @@ def create_reservation():
                            # available before you create the reservation record that references it.
 
     # Check if the customer already has a reservation at the same time
-    existing_reservation = Reservations.query.filter_by(customer_id=customer.customer_id, time_slot=time_slot).first()
+    existing_reservation = Reservations.query.filter_by(customer_id=customer.customer_id, time_slot=time_slot_str).first()
     if existing_reservation:
         return jsonify({
             'status': 'error',
@@ -101,14 +122,14 @@ def create_reservation():
     # Step 4: Create a reservation for that customer
     reservation = Reservations(
         customer_id=customer.customer_id,
-        time_slot=time_slot,
+        time_slot=time_slot_str,  # Store as string to match the column type
         number_of_guests=data['number_of_guests'],
         table_number=assigned_table
     )
     db.session.add(reservation)
     db.session.commit() # The records for customer and reservation are officially saved into the PostgreSQL database
 
-    return jsonify({'message': 'Reservation confirmed','table_number': assigned_table}), 201
+    return jsonify({'message': 'Reservation confirmed','table_number': assigned_table, 'time_slot': time_slot}), 201
     # HTTP code 201 indicates that the request has been fulfilled and has resulted in the creation of a new resource.
 
 # This route returns how many tables are available per hour
