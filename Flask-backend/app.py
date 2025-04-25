@@ -1,9 +1,12 @@
 # pip install -r requirements.txt
 
 from flask import Flask, request, jsonify
+from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import random # For assignment of a customer's reservation to a random table number of 1 to 30
+from sqlalchemy import func, cast
+from sqlalchemy.types import Date
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app, resources={r"/api/*": {"origins": ["http://localhost:8080", "http://127.0.0.1:8080"]}})
@@ -107,6 +110,50 @@ def create_reservation():
 
     return jsonify({'message': 'Reservation confirmed','table_number': assigned_table}), 201
     # HTTP code 201 indicates that the request has been fulfilled and has resulted in the creation of a new resource.
+
+# This route returns how many tables are available per hour
+@app.route('/api/reservation-counts', methods=['GET'])
+def reservation_counts():
+    date_str = request.args.get('date')
+    try:
+        if date_str:
+            try:
+                date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+        else:
+            date = datetime.now().date()
+
+        # Fix for the PostgreSQL date_trunc function error
+        # Cast time_slot explicitly to TIMESTAMP type before using date_trunc
+        counts = db.session.query(
+            func.date_trunc('hour', cast(Reservations.time_slot, db.DateTime)).label('hour'),
+            func.count().label('count')
+        ).filter(
+            cast(Reservations.time_slot, Date) == date
+        ).group_by(
+            'hour'
+        ).all()
+        
+        # Create response with available tables
+        response = {}
+        hours_today = [datetime.combine(date, datetime.min.time().replace(hour=h)) for h in range(11, 22)]
+        
+        # Initialize all hours with full availability
+        for hour in hours_today:
+            response[hour.strftime('%Y-%m-%d %H:%M:%S')] = TOTAL_TABLES
+            
+        # Update with actual reservation counts
+        for hour, count in counts:
+            if hour:  # Check if hour is not None
+                hour_str = hour.strftime('%Y-%m-%d %H:%M:%S')
+                response[hour_str] = TOTAL_TABLES - count
+                
+        return jsonify(response)
+        
+    except Exception as e:
+        app.logger.error(f"Error in reservation_counts: {str(e)}")
+        return jsonify({'error': 'Internal server error', 'message': str(e)}), 500
 
 @app.route("/api/health", methods=['GET'])
 def health_check():
