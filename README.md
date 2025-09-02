@@ -1,34 +1,69 @@
 # Cafe Fausse
 
-This repository holds the software artifacts for Cafe Fausse, a Quantic School of Business and Technology towards the Master of Science in Software Engineering degree.
+This repository holds the software artifacts for Cafe Fausse, a Quantic School of Business and Technology towards the Master of Science in Software Engineering degree. 
+
+This was developed using MacOS and as such the instructions that follow demonstrate MacOS.
 
 ## Backend
 
 The backend of our web app is hosted via Flask, a lightweight web framework written in Python that helps build websites and web applications. Our web app uses packages that extend the functionality of Flask, such as `Flask-CORS`, `WTForms`, and `flask_sqlalchemy`.
 
-Flask-SQLAlchemy is a tool that helps the Flask use a database such as the one used by our web app, PostgreSQL. To set up a PostgreSQL database on your machine, run the following commands in your terminal. For demonstration purposes, the username for the user that accesses the PostgreSQL has been set to `cafefausse` and the password for that user has been set to `aedj12sda`.
+Flask-SQLAlchemy is a tool that helps the Flask use a database such as the one used by our web app, PostgreSQL. To set up a PostgreSQL database on your machine, run the following commands in your terminal. For demonstration purposes, the username for the user that accesses the PostgreSQL has been set to `cafefausse` and the password for that user has been has been randomly generated and saved in a `.env` file. An example of what is necessary is stored as `.env.example` in this repo. For this technique, we use `dotenv` and set the db as follows in lines 16-18 of `app.py`:
 
-`pip install flask-sqlalchemy psycopg2-binary`  
-`createdb cafefausse`  
-`psql -U postgres`  
-`CREATE USER cafefausse WITH PASSWORD 'aedj12sda';`  
-`GRANT ALL PRIVILEGES ON DATABASE cafefausse TO myuser;`
+```python
+load_dotenv()
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+db = SQLAlchemy(app)
+```
+
+To get started, we'll begin with PostgreSQL.
+
+```bash
+psql -U postgres
+```
+
+Enter these one line at a time:
+
+```SQL
+CREATE DATABASE cafefausse;
+CREATE USER cafefausse WITH PASSWORD 'aedj12sda';
+GRANT ALL PRIVILEGES ON DATABASE cafefausse TO myuser;
+```
 
 To test that the user has read and write privileges for the new database, run the following in your terminal, then enter the password when prompted:
 
 `psql -U myuser -d cafefausse -h localhost -W`
 
-In the code used by the Flask web application, `app.py`, ensure that the row below contains credentials that match the credentials that are needed for authentication into the PostgreSQL database:
-
-`postgresql://cafefausse:aedj12sda@localhost/mydatabase' db = SQLAlchemy(app)`
-
 ## Frontend
 
 The frontend is hosted via a React app, and the React Router DOM, using Vite. The front end is further
-bootstrapped with `Bootstrap`, `React Bootstrap` for styling and `Axious` for a front-end RESTful API.
+bootstrapped with `Bootstrap`, `React Bootstrap` for styling and `Axios` for a front-end RESTful API.
 
 ## Running Development
 
-- Run your Flask app with `python app.py` to serve the built React app.
+### Backend
+- Start a virtual env in the `Flask-backend` directory by `python -m venv .venv`.
+- Activate the virtual env with `source .venv/bin/activate`.
+- Install the requirements with `pip install -r requirements.txt`
+- Run your Flask app with `python app.py` to serve the built React app.*
+
+### Frontend
+- Navigate to `reactjsx-client`
+- Run `npm install` in this directory.
 - Run `npm start` in reactjsx-client for development with hot reloading.
 - Open `http://localhost:8080` in your favorite browser.
+
+*Note: Sometimes you will still get a permission error for the new user you created even if you successfully granted them permission earlier. You'll need to follow:
+
+- go to postgres as postgres `psql -U postgres`
+
+Enter the following commands one by one.
+
+```SQL
+ALTER DATABASE cafefausse OWNER TO cafefausse;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cafefausse;
+GRANT USAGE, CREATE ON SCHEMA public TO cafefausse;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO cafefausse;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cafefausse;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO cafefausse;
+```

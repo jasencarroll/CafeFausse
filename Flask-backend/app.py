@@ -7,11 +7,14 @@ from flask_cors import CORS
 import random # For assignment of a customer's reservation to a random table number of 1 to 30
 from sqlalchemy import func, cast
 from sqlalchemy.types import Date
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app, resources={r"/api/*": {"origins": ["http://localhost:8080", "http://127.0.0.1:8080"]}})
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://cafefausse:aedj12sda@localhost/cafefausse'
+load_dotenv()
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 db = SQLAlchemy(app)
 
 TOTAL_TABLES = 30
