@@ -1,10 +1,10 @@
 # Cafe Fausse
 
-This repository holds the software artifacts for Cafe Fausse, a Quantic School of Business and Technology towards the Master of Science in Software Engineering degree. 
+This repository holds the software artifacts for Cafe Fausse, a Quantic School of Business and Technology towards the Master of Science in Software Engineering degree.
 
 This was developed using MacOS and as such the instructions that follow demonstrate MacOS.
 
-## Backend
+## Backend Design & Postgres Setup
 
 The backend of our web app is hosted via Flask, a lightweight web framework written in Python that helps build websites and web applications. Our web app uses packages that extend the functionality of Flask, such as `Flask-CORS`, `WTForms`, and `flask_sqlalchemy`.
 
@@ -26,7 +26,7 @@ Enter these one line at a time:
 
 ```SQL
 CREATE DATABASE cafefausse;
-CREATE USER cafefausse WITH PASSWORD 'aedj12sda';
+CREATE USER cafefausse WITH PASSWORD 'password-here';
 GRANT ALL PRIVILEGES ON DATABASE cafefausse TO myuser;
 ```
 
@@ -34,7 +34,7 @@ To test that the user has read and write privileges for the new database, run th
 
 `psql -U myuser -d cafefausse -h localhost -W`
 
-## Frontend
+## Frontend Design
 
 The frontend is hosted via a React app, and the React Router DOM, using Vite. The front end is further
 bootstrapped with `Bootstrap`, `React Bootstrap` for styling and `Axios` for a front-end RESTful API.
@@ -42,17 +42,23 @@ bootstrapped with `Bootstrap`, `React Bootstrap` for styling and `Axios` for a f
 ## Running Development
 
 ### Backend
+
+- Complete the steps above with PostgreSQL.
+- `cp .env.example .env` and update the file with your PostgreSQL User password.
 - Start a virtual env in the `Flask-backend` directory by `python -m venv .venv`.
 - Activate the virtual env with `source .venv/bin/activate`.
 - Install the requirements with `pip install -r requirements.txt`
-- Run your Flask app with Gunicorn using `python app.py` to serve the built React app.*
-- Once that is successful you can switch to using a production server with Gunicorn by `gunicorn app:app -b 127.0.0.1:5000`. 
+- Run your Flask app with Gunicorn using `python app.py` to serve the API for the React app.*
+- Once that is successful you can switch to using a production server with Gunicorn by `gunicorn app:app -b 127.0.0.1:5000`.
 
 ### Frontend
+
 - Navigate to `reactjsx-client`
 - Run `npm install` in this directory.
 - Run `npm start` in reactjsx-client for development with hot reloading.
 - Open `http://localhost:8080` in your favorite browser.
+
+### Troubleshooting
 
 *Note: Sometimes you will still get a permission error for the new user you created even if you successfully granted them permission earlier. You'll need to follow:
 
