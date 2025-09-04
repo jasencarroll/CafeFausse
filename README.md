@@ -6,7 +6,7 @@ This was developed using MacOS and as such the instructions that follow demonstr
 
 ## Backend Design & Postgres Setup
 
-The backend of our web app is hosted via Flask, a lightweight web framework written in Python that helps build websites and web applications. Our web app uses packages that extend the functionality of Flask, such as `Flask-CORS`, `WTForms`, and `flask_sqlalchemy`.
+The backend of our web app is hosted via Flask, a lightweight web framework written in Python that helps build websites and web applications. Our web app uses packages that extend the functionality of Flask, such as `Flask-CORS` and `flask_sqlalchemy`.
 
 Flask-SQLAlchemy is a tool that helps the Flask use a database such as the one used by our web app, PostgreSQL. To set up a PostgreSQL database on your machine, run the following commands in your terminal. For demonstration purposes, the username for the user that accesses the PostgreSQL has been set to `cafefausse` and the password for that user has been has been randomly generated and saved in a `.env` file. An example of what is necessary is stored as `.env.example` in this repo. For this technique, we use `dotenv` and set the db as follows in lines 16-18 of `app.py`:
 
