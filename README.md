@@ -74,3 +74,6 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO cafefausse;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cafefausse;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO cafefausse;
 ```
+
+
+https://github.com/jasencarroll/CafeFausse
