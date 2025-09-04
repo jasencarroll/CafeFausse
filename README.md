@@ -45,7 +45,8 @@ bootstrapped with `Bootstrap`, `React Bootstrap` for styling and `Axios` for a f
 - Start a virtual env in the `Flask-backend` directory by `python -m venv .venv`.
 - Activate the virtual env with `source .venv/bin/activate`.
 - Install the requirements with `pip install -r requirements.txt`
-- Run your Flask app with `python app.py` to serve the built React app.*
+- Run your Flask app with Gunicorn using `python app.py` to serve the built React app.*
+- Once that is successful you can switch to using a production server with Gunicorn by `gunicorn app:app -b 127.0.0.1:5000`. 
 
 ### Frontend
 - Navigate to `reactjsx-client`
