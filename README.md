@@ -27,7 +27,7 @@ Enter these one line at a time:
 ```SQL
 CREATE DATABASE cafefausse;
 CREATE USER cafefausse WITH PASSWORD 'password-here';
-GRANT ALL PRIVILEGES ON DATABASE cafefausse TO myuser;
+GRANT ALL PRIVILEGES ON DATABASE cafefausse TO cafefausse;
 ```
 
 To test that the user has read and write privileges for the new database, run the following in your terminal, then enter the password when prompted:
