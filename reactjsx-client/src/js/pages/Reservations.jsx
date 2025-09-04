@@ -9,8 +9,11 @@ const TOTAL_TABLES = 30;
 export default function Reservations() {
     const [formData, setFormData] = useState({
         customerName: '',
+        customerNameTouched: false,
         email: '',
+        emailTouched: false, 
         phoneNumber: '',
+        phoneNumberTouched: false,
         guests: 1,
         timeSlot: '',
         newsletter_signup: false // If the newsletter signup box is not checked off, the value False is returned
@@ -141,6 +144,17 @@ export default function Reservations() {
 
     const timeSlots = generateTimeSlots();
 
+    const isValidPhoneNumber = (phone) => {
+        // Basic validation - at least 10 digits (after removing non-digit characters)
+        const digitsOnly = phone.replace(/\D/g, '');
+        return digitsOnly.length >= 10;
+    };
+
+    const isValidEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+
     return (
         <div className="container py-4 px-3 mx-auto">
             <h1>Reservations</h1>
@@ -189,57 +203,152 @@ export default function Reservations() {
                                     <label htmlFor="guests" className="form-label">Number of Guests</label>
                                     <input 
                                         type="number" 
-                                        autoComplete="name"
-                                        className="form-control" 
+                                        autoComplete="off"
+                                        className={`form-control ${formData.guests < 1 || formData.guests > 10 ? 'is-invalid' : ''}`}
                                         id="guests"
                                         name="guests"
                                         min="1" 
                                         max="10"
                                         value={formData.guests}
-                                        onChange={handleChange}
+                                        onChange={(e) => {
+                                            // Get the numeric value
+                                            const value = parseInt(e.target.value, 10);
+                                            
+                                            // Create a modified event with validated value
+                                            const validatedEvent = {
+                                                target: {
+                                                    name: e.target.name,
+                                                    value: isNaN(value) ? '' : Math.min(Math.max(value, 1), 10),
+                                                    type: e.target.type
+                                                }
+                                            };
+                                            
+                                            // Pass the validated event to the original handler
+                                            handleChange(validatedEvent);
+                                        }}
+                                        onBlur={(e) => {
+                                            // If empty or invalid on blur, set to minimum value
+                                            if (e.target.value === '' || parseInt(e.target.value, 10) < 1) {
+                                                handleChange({
+                                                    target: {
+                                                        name: 'guests',
+                                                        value: '1',
+                                                        type: 'number'
+                                                    }
+                                                });
+                                            }
+                                        }}
                                         required
                                     />
+                                    <div className="invalid-feedback">
+                                        Please select between 1 and 10 guests.
+                                    </div>
                                 </div>
                                 
                                 <div className="mb-3">
                                     <label htmlFor="customerName" className="form-label">Name</label>
                                     <input 
                                         type="text" 
-                                        className="form-control" 
+                                        className={`form-control ${formData.customerName.trim().length < 2 && formData.customerNameTouched ? 'is-invalid' : ''}`} 
                                         id="customerName"
                                         name="customerName"
+                                        autoComplete="name"
                                         value={formData.customerName}
-                                        onChange={handleChange}
+                                        onChange={(e) => {
+                                            // Only allow letters, spaces, hyphens, and apostrophes
+                                            const value = e.target.value.replace(/[^a-zA-Z\s'-]/g, '');
+                                            
+                                            // Create a modified event with validated value
+                                            const validatedEvent = {
+                                                target: {
+                                                    name: e.target.name,
+                                                    value: value,
+                                                    type: e.target.type
+                                                }
+                                            };
+                                            
+                                            // Pass the validated event to the original handler
+                                            handleChange(validatedEvent);
+                                        }}
+                                        onBlur={() => {
+                                            // Mark field as touched when user leaves the field
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                customerNameTouched: true
+                                            }));
+                                        }}
+                                        maxLength="50"
                                         required
                                     />
+                                    <div className="invalid-feedback">
+                                        Please enter a valid name (at least 2 characters).
+                                    </div>
                                 </div>
                                 
                                 <div className="mb-3">
                                     <label htmlFor="email" className="form-label">Email Address</label>
                                     <input 
                                         type="email" 
-                                        className="form-control" 
+                                        className={`form-control ${formData.emailTouched && !isValidEmail(formData.email) ? 'is-invalid' : ''}`}
                                         id="email"
                                         autoComplete="email"
                                         name="email"
                                         value={formData.email}
-                                        onChange={handleChange}
+                                        onChange={(e) => {
+                                            handleChange(e);
+                                        }}
+                                        onBlur={() => {
+                                            // Mark field as touched when user leaves the field
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                emailTouched: true
+                                            }));
+                                        }}
                                         required
                                     />
+                                    <div className="invalid-feedback">
+                                        Please enter a valid email address.
+                                    </div>
                                 </div>
                                 
                                 <div className="mb-3">
                                     <label htmlFor="phoneNumber" className="form-label">Phone Number</label>
                                     <input 
                                         type="tel" 
-                                        className="form-control" 
+                                        className={`form-control ${formData.phoneNumberTouched && !isValidPhoneNumber(formData.phoneNumber) ? 'is-invalid' : ''}`}
                                         autoComplete="tel"
                                         id="phoneNumber"
                                         name="phoneNumber"
                                         value={formData.phoneNumber}
-                                        onChange={handleChange}
+                                        onChange={(e) => {
+                                            // Only allow digits, spaces, parentheses, hyphens, and plus signs
+                                            const value = e.target.value.replace(/[^\d\s()+\-]/g, '');
+                                            
+                                            // Create a modified event with validated value
+                                            const validatedEvent = {
+                                                target: {
+                                                    name: e.target.name,
+                                                    value: value,
+                                                    type: e.target.type
+                                                }
+                                            };
+                                            
+                                            // Pass the validated event to the original handler
+                                            handleChange(validatedEvent);
+                                        }}
+                                        onBlur={() => {
+                                            // Mark field as touched when user leaves the field
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                phoneNumberTouched: true
+                                            }));
+                                        }}
+                                        placeholder="(555) 123-4567"
                                         required
                                     />
+                                    <div className="invalid-feedback">
+                                        Please enter a valid phone number.
+                                    </div>
                                 </div>
 
                                 <div className="mb-3 form-check">
